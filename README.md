@@ -1,150 +1,217 @@
 # Automated Test Execution Scheduler
 
-A professional, full-stack web application designed to create, manage, schedule, manually trigger, and monitor automated test scripts, as well as view comprehensive execution logs and reports.
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-19.0-61DAFB.svg)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-6.0-646CFF.svg)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC.svg)](https://tailwindcss.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A professional full-stack web application designed for QA engineers and developers to create and manage automated test scripts, schedule recurring background execution jobs (interval & cron syntax), trigger manual test runs, monitor live execution telemetry, and inspect detailed execution logs and status reports.
 
 ---
 
-## 📌 Project Overview
+## 🚀 Features
 
-**Automated Test Execution Scheduler** provides QA engineers, developers, and DevOps teams with a centralized platform for test automation management. It allows users to store automated test scripts (initially supporting `pytest`), schedule test runs at specific time intervals or cron schedules, trigger manual test executions on demand, track real-time execution status, and inspect detailed execution logs and historical reports.
-
----
-
-## ✨ Planned Features
-
-- **Test Script Management**: Create, edit, tag, and organize automated test scripts and test suites.
-- **Automated Test Scheduling**: Schedule test executions at flexible intervals or cron expressions using `APScheduler`.
-- **Manual Execution Triggers**: Trigger test suite execution instantly with on-demand controls.
-- **Real-Time Execution Monitoring**: Monitor execution statuses (Pending, Running, Passed, Failed, Cancelled) in real time.
-- **Log Management & Reporting**: Capture stdout/stderr logs, pytest execution summaries, pass/fail ratios, and historical execution trends.
-- **User Authentication & RBAC**: Secure access control via JWT authentication.
-- **Cloud Deployment Ready**: Optimized for seamless deployment on Render.
+- **JWT Authentication & Authorization**: Secure user registration, login, session persistence, password hashing via `bcrypt`, and user ownership data isolation.
+- **Test Script Management**: Authenticated CRUD management of test suite definitions (`pytest` framework support, configurable timeouts, script paths).
+- **Automated Pytest Execution Engine**: Safe subprocess test execution (`shell=False`), process isolation, 50KB stdout/stderr log capture, exit code mapping, and timeout enforcement.
+- **Background Scheduling Engine**: Multi-mode automated scheduler powered by **APScheduler** supporting both interval (seconds) and standard 5-field cron syntax (`*/5 * * * *`). Includes pause and resume controls.
+- **Execution History & Audit Trail**: Paginated and filterable execution logs searchable by test script, schedule ID, execution status (`passed`, `failed`, `timeout`, `running`), trigger type (`manual`, `scheduled`), and date range.
+- **SQL-Aggregated Reporting & Analytics**: Performance statistics including total executions, status counts, success rate percentage (`(passed / completed) * 100`), and average execution duration.
+- **Developer Dashboard UI**: Full React frontend featuring real-time system telemetry cards, Recharts status distribution charts, recent run duration trends, upcoming schedule previews, and a monospace output log viewer.
 
 ---
 
-## 🛠️ Technology Stack
+## 🏗️ Architecture
 
-| Layer | Technology |
-|---|---|
-| **Frontend** | React, Vite, Tailwind CSS |
-| **Backend** | Python, FastAPI |
-| **Database** | PostgreSQL |
-| **ORM** | SQLAlchemy |
-| **Validation** | Pydantic |
-| **Authentication** | JWT (JSON Web Tokens) |
-| **Task Scheduler** | APScheduler |
-| **Test Execution Engine** | Python `subprocess` (pytest integration) |
-| **Deployment** | Render |
-| **Version Control** | GitHub |
-
----
-
-## 🏗️ Planned Architecture
-
-```mermaid
-graph TD
-    Client[React SPA Frontend - Vite + Tailwind] <-->|REST API / JWT Auth| API[FastAPI Backend Server]
-    API <-->|SQLAlchemy ORM| DB[(PostgreSQL Database)]
-    API <-->|Jobs & Triggers| Scheduler[APScheduler Engine]
-    Scheduler -->|Spawns Subprocess| Engine[Test Execution Engine - pytest]
-    Engine -->|Captures Logs & Results| DB
+### System Flow
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    React Frontend UI                        │
+│         (React 19 + TypeScript + Vite + Tailwind CSS)       │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ HTTP REST (Bearer JWT)
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    FastAPI Backend API                      │
+│       (Routers: Auth, Tests, Schedules, Executions)          │
+└──────────────┬──────────────────────────────┬───────────────┘
+               │                              │
+               ▼                              ▼
+┌──────────────────────────────┐┌─────────────────────────────┐
+│   APScheduler Lifecycle      ││      SQLAlchemy ORM         │
+│ (Interval & Cron Background) ││(User, Test, Schedule, Exec) │
+└──────────────┬───────────────┘└──────────────┬──────────────┘
+               │                              │
+               ▼                              ▼
+┌──────────────────────────────┐┌─────────────────────────────┐
+│   Pytest Execution Engine    ││   PostgreSQL / SQLite DB    │
+│  (subprocess, shell=False)   ││  (Persistence Store)        │
+└──────────────────────────────┘└─────────────────────────────┘
 ```
 
-1. **Frontend (SPA)**: Built with React, Vite, and Tailwind CSS, providing an intuitive dashboard for scheduler configuration, test management, live monitoring, and log inspection.
-2. **Backend Server (FastAPI)**: RESTful API handling authentication, test script metadata management, schedule management, and log retrieval.
-3. **Scheduler & Worker (APScheduler)**: Background scheduler managing execution jobs, triggering test tasks at configured intervals or on-demand.
-4. **Execution Engine (Python Subprocess)**: Executes pytest test suites isolatedly in subprocesses and streams/collects stdout, stderr, exit codes, and timing metadata.
-5. **Database (PostgreSQL)**: Persists user accounts, test suite definitions, schedule configurations, and detailed execution logs/metrics.
-
----
-
-## 📂 Project Structure
-
+### Execution & Scheduling Workflow
 ```
-automated-test-execution-scheduler/
-├── backend/          # FastAPI backend application
-├── frontend/         # React + Vite frontend application
-├── tests/            # Test suites and test execution fixtures
-├── docs/             # Documentation and architectural diagrams
-├── scripts/          # Automation scripts and utility tools
-├── .gitignore        # Git ignore rules
-├── README.md         # Project documentation
-└── render.yaml       # Render deployment specification
+[APScheduler Trigger / Manual UI Request]
+                   │
+                   ▼
+     [ Execution Service Layer ]
+                   │
+                   ▼
+     [ Pytest Subprocess Runner ]
+        ├── Path Security Check (Prevent Directory Traversal)
+        ├── Spawn Process (shell=False)
+        ├── Enforce Timeout Limit
+        └── Capture & Truncate stdout / stderr Streams
+                   │
+                   ▼
+     [ DB Persistence (Executions Table) ]
 ```
 
 ---
 
-## ⚡ Quickstart - Backend Development
+## 🛠️ Backend Setup
 
 ### Prerequisites
-- Python 3.10+
-- virtualenv / venv
+- Python 3.10+ (Tested on Python 3.14)
+- Virtual Environment tool (`venv`)
 
-### Setup & Run Backend
-
-1. Navigate to backend directory:
+### Installation & Execution
+1. Navigate to the `backend` directory:
    ```bash
    cd backend
    ```
 2. Create and activate a virtual environment:
-   ```bash
-   python -m venv .venv
-   # Windows (PowerShell):
-   .venv\Scripts\Activate.ps1
-   # Linux / macOS:
-   source .venv/bin/activate
-   ```
-3. Install dependencies:
+   - **Windows (PowerShell)**:
+     ```powershell
+     python -m venv .venv
+     .\.venv\Scripts\Activate.ps1
+     ```
+   - **Linux / macOS**:
+     ```bash
+     python3 -m venv .venv
+     source .venv/bin/activate
+     ```
+3. Install backend dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-4. Copy environment configuration:
+4. Configure environment variables:
    ```bash
    cp .env.example .env
    ```
-5. Run FastAPI dev server:
+5. Initialize the database schema:
+   ```bash
+   python ..\scripts\init_db.py
+   ```
+6. Start the FastAPI development server:
    ```bash
    uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
    ```
-6. Access API Endpoints & Docs:
-   - **Health Endpoint**: `http://127.0.0.1:8000/api/health`
+7. Access API documentation:
    - **Swagger OpenAPI Docs**: `http://127.0.0.1:8000/docs`
-   - **ReDoc**: `http://127.0.0.1:8000/redoc`
+   - **ReDoc Docs**: `http://127.0.0.1:8000/redoc`
+   - **Health Endpoint**: `http://127.0.0.1:8000/api/health`
 
 ---
 
-## 🚀 Development Status
+## 💻 Frontend Setup
 
-- **Current Phase**: `Phase 7: Execution History & Reporting API`
-- **Completed**:
-  - [x] Phase 1: Backend Foundation & FastAPI setup
-  - [x] Phase 2: SQLAlchemy ORM models & database initialization
-  - [x] Phase 3: JWT Authentication & Authorization
-  - [x] Phase 4: Test Script CRUD Management & Security
-  - [x] Phase 5: Automated Test Execution Engine
-  - [x] Phase 6: Scheduling Engine (APScheduler Integration)
-  - [x] Phase 7: Execution History & Reporting API
-    - `GET /api/executions/stats` (SQL-aggregated execution statistics, success rate, average duration)
-    - `GET /api/executions/recent` (N most recent execution summary records)
-    - `GET /api/executions` (Lightweight paginated summary listing with status, trigger_type, schedule_id, date range filters)
-    - `GET /api/executions/{id}` (Detailed execution payload with full stdout/stderr logs and test/schedule metadata)
-    - `GET /api/tests/{test_id}/executions` (Test-specific execution history)
-    - `GET /api/schedules/{schedule_id}/executions` (Schedule-specific execution history)
-    - Date range validation (`date_from <= date_to`) with UTC timezone awareness
-    - Strict user ownership isolation across all reporting endpoints
-    - Comprehensive backend test suite (54 tests passing)
-- **Next Steps (Phase 8)**:
-  1. Frontend React / Vite Application implementation.
+### Prerequisites
+- Node.js 18+ and `npm`
+
+### Installation & Execution
+1. Navigate to the `frontend` directory:
+   ```bash
+   cd frontend
+   ```
+2. Install frontend packages:
+   ```bash
+   npm install
+   ```
+3. Configure environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+4. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:5173/` in your browser.
+5. Compile production build:
+   ```bash
+   npm run build
+   ```
 
 ---
 
+## ⚙️ Environment Variables
 
+### Backend (`backend/.env`)
+| Variable | Default Value | Description |
+|---|---|---|
+| `ENVIRONMENT` | `development` | Runtime environment (`development`, `production`). |
+| `DEBUG` | `True` | Enable debug logs & detailed error payloads. |
+| `API_PREFIX` | `/api` | Base API router prefix. |
+| `DATABASE_URL` | `sqlite:///./test_scheduler.db` | SQLAlchemy database URL (SQLite or PostgreSQL). |
+| `ALLOWED_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated CORS allowed origin URLs. |
+| `JWT_SECRET_KEY` | `change-this-secret-key-...` | Secret key for signing JWT access tokens. |
+| `JWT_ALGORITHM` | `HS256` | JWT signing algorithm. |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `1440` | Token expiration time in minutes (24 hours). |
+| `TEST_SCRIPTS_DIR` | `test_scripts` | Base directory containing target test scripts. |
 
-## 📝 License
+### Frontend (`frontend/.env`)
+| Variable | Default Value | Description |
+|---|---|---|
+| `VITE_API_BASE_URL` | `http://127.0.0.1:8000/api` | Base URL of the backend FastAPI service. |
 
-This project is licensed under the MIT License.
+---
 
+## 🧪 Testing
 
+Run the complete backend automated test suite (54 unit, integration, and security tests):
+```bash
+cd backend
+pytest ../tests/test_models.py ../tests/test_auth.py ../tests/test_test_management.py ../tests/test_execution_engine.py ../tests/test_scheduling_engine.py ../tests/test_execution_reporting.py
+```
+*Expected Result*: **`54 passed`**.
 
+---
 
+## ☁️ Deployment Guide
 
+The application is prepared for simple deployment using **Render** (or any Cloud Provider supporting Docker/Web Services and Static Sites).
+
+### Simple Render Deployment
+1. Connect your GitHub repository to [Render](https://render.com/).
+2. Select **Blueprints** and point Render to [`render.yaml`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/render.yaml).
+3. Render automatically provisions:
+   - **PostgreSQL Database**: `test-scheduler-db`
+   - **FastAPI Web Service**: `test-scheduler-backend` (runs `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`)
+   - **Static Frontend Site**: `test-scheduler-frontend` (runs `cd frontend && npm install && npm run build` publishing `frontend/dist`)
+4. Set environment variables on the backend service:
+   - `JWT_SECRET_KEY`: High-entropy random 32-byte secret string.
+   - `ALLOWED_ORIGINS`: Production static site URL (e.g. `https://test-execution-scheduler.onrender.com`).
+
+---
+
+## 🔒 Security Summary
+
+- **Password Hashing**: Passwords are hashed using `bcrypt` and never returned in API DTOs or logs.
+- **JWT Authorization**: All private endpoints require `Authorization: Bearer <token>`.
+- **User Ownership Isolation**: Data access is strictly isolated by user ID (`Execution -> Test -> User`).
+- **Path Traversal Protection**: Script paths are sanitized and resolved strictly within `TEST_SCRIPTS_DIR`.
+- **Subprocess Security**: Subprocess execution uses `shell=False` strictly without command string interpolation.
+- **Environment Secrets**: Sensitive `.env` files and runtime SQLite databases are excluded via `.gitignore`.
+
+---
+
+## 🎯 Project Status
+
+```
+==================================================
+PROJECT STATUS: COMPLETE
+==================================================
+```
+All 10 project phases have been fully implemented, integrated, tested, and verified.
