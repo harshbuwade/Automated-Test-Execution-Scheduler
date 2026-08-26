@@ -30,3 +30,10 @@ def get_db() -> Generator:
         yield db
     finally:
         db.close()
+
+
+def init_db() -> None:
+    """Explicitly creates database tables from metadata if they do not exist."""
+    import app.models  # noqa: F401 - Register models with Base metadata
+    Base.metadata.create_all(bind=engine)
+

@@ -115,22 +115,23 @@ automated-test-execution-scheduler/
 
 ## 🚀 Development Status
 
-- **Current Phase**: `Phase 1: Backend Foundation`
+- **Current Phase**: `Phase 2: Database & SQLAlchemy Models`
 - **Completed**:
-  - [x] Initial Repository & Scaffolding setup
-  - [x] FastAPI application initialization & configuration
-  - [x] Pydantic `BaseSettings` environment configuration
-  - [x] SQLAlchemy database engine, sessionmaker & session dependency setup
-  - [x] CORS middleware for React frontend integration
-  - [x] Global exception handling
-  - [x] `GET /api/health` check endpoint
-- **Next Steps (Phase 2)**:
-  1. Database schema design with SQLAlchemy (Users, TestScripts, Schedules, ExecutionLogs).
-  2. Alembic migration setup.
+  - [x] Phase 1: Backend Foundation & FastAPI setup
+  - [x] Phase 2: SQLAlchemy ORM models (`User`, `Test`, `Schedule`, `Execution`)
+  - [x] Enums (`TestStatus`, `ScheduleType`, `ExecutionStatus`, `TriggerType`)
+  - [x] Foreign key relationships & cascade rules (`CASCADE` / `SET NULL`)
+  - [x] Unique constraints, indexes & timezone-aware UTC default timestamps
+  - [x] Explicit database initialization script (`scripts/init_db.py`)
+  - [x] Comprehensive pytest test suite for database models (`tests/test_models.py`)
+- **Next Steps (Phase 3)**:
+  1. Pydantic schemas (DTOs) for User, Test, Schedule, and Execution CRUD operations.
+  2. CRUD services layer & API endpoints.
 
 ---
 
 ## 📝 License
 
 This project is licensed under the MIT License.
+
 
