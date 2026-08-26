@@ -1,9 +1,13 @@
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.config import settings
-from app.routers import auth, executions, health, tests
+from app.database import SessionLocal
+from app.routers import auth, executions, health, schedules, tests
+from app.scheduler import scheduler_manager
+from app.services.execution_service import trigger_scheduled_execution
 
 # Setup logging
 logging.basicConfig(
@@ -11,6 +15,21 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger("test_scheduler")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """FastAPI lifespan context manager handling startup & shutdown lifecycle."""
+    logger.info("Initializing APScheduler background service on startup...")
+    scheduler_manager.start()
+    scheduler_manager.load_active_schedules_on_startup(
+        db_factory=SessionLocal,
+        job_func=trigger_scheduled_execution,
+    )
+    yield
+    logger.info("Stopping APScheduler background service on shutdown...")
+    scheduler_manager.shutdown(wait=False)
+
 
 # Instantiate FastAPI application
 app = FastAPI(
@@ -20,6 +39,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url=f"{settings.API_PREFIX}/openapi.json",
+    lifespan=lifespan,
 )
 
 # Configure CORS middleware
@@ -36,6 +56,8 @@ app.include_router(health.router, prefix=settings.API_PREFIX)
 app.include_router(auth.router, prefix=settings.API_PREFIX)
 app.include_router(tests.router, prefix=settings.API_PREFIX)
 app.include_router(executions.router, prefix=settings.API_PREFIX)
+app.include_router(schedules.router, prefix=settings.API_PREFIX)
+
 
 
 

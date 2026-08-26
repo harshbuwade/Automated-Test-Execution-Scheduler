@@ -115,27 +115,30 @@ automated-test-execution-scheduler/
 
 ## 🚀 Development Status
 
-- **Current Phase**: `Phase 5: Automated Test Execution Engine`
+- **Current Phase**: `Phase 7: Execution History & Reporting API`
 - **Completed**:
   - [x] Phase 1: Backend Foundation & FastAPI setup
   - [x] Phase 2: SQLAlchemy ORM models & database initialization
   - [x] Phase 3: JWT Authentication & Authorization
   - [x] Phase 4: Test Script CRUD Management & Security
   - [x] Phase 5: Automated Test Execution Engine
-    - `POST /api/executions` (Manually trigger execution of user's pytest test script)
-    - `GET /api/executions` (List execution history with pagination & filtering by `test_id` and `status`)
-    - `GET /api/executions/{id}` (Get execution record detail with ownership authorization)
-    - Safe Python subprocess execution (`shell=False`, `sys.executable -m pytest <path>`)
-    - Subprocess timeout enforcement with clean process tree termination
-    - Capturing stdout, stderr, exit code, started_at, finished_at, and duration
-    - Log output truncation limit (max 50,000 characters per stream to preserve DB performance)
-    - Sample pytest scripts ([`sample_pass.py`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/test_scripts/sample_pass.py), [`sample_fail.py`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/test_scripts/sample_fail.py), [`sample_timeout.py`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/test_scripts/sample_timeout.py))
-    - Comprehensive backend automated test suite (35 tests passing)
-- **Next Steps (Phase 6)**:
-  1. APScheduler integration for automated recurring & interval-based test execution.
-  2. Schedule CRUD management API endpoints (`/api/schedules`).
+  - [x] Phase 6: Scheduling Engine (APScheduler Integration)
+  - [x] Phase 7: Execution History & Reporting API
+    - `GET /api/executions/stats` (SQL-aggregated execution statistics, success rate, average duration)
+    - `GET /api/executions/recent` (N most recent execution summary records)
+    - `GET /api/executions` (Lightweight paginated summary listing with status, trigger_type, schedule_id, date range filters)
+    - `GET /api/executions/{id}` (Detailed execution payload with full stdout/stderr logs and test/schedule metadata)
+    - `GET /api/tests/{test_id}/executions` (Test-specific execution history)
+    - `GET /api/schedules/{schedule_id}/executions` (Schedule-specific execution history)
+    - Date range validation (`date_from <= date_to`) with UTC timezone awareness
+    - Strict user ownership isolation across all reporting endpoints
+    - Comprehensive backend test suite (54 tests passing)
+- **Next Steps (Phase 8)**:
+  1. Frontend React / Vite Application implementation.
 
 ---
+
+
 
 ## 📝 License
 

@@ -7,8 +7,17 @@ from app.schemas.auth import (
 )
 from app.schemas.execution import (
     ExecutionCreate,
+    ExecutionDetailResponse,
     ExecutionListResponse,
     ExecutionResponse,
+    ExecutionStatsResponse,
+    ExecutionSummaryResponse,
+)
+from app.schemas.schedule import (
+    ScheduleCreate,
+    ScheduleListResponse,
+    ScheduleResponse,
+    ScheduleUpdate,
 )
 from app.schemas.test import (
     TestCreate,
@@ -28,6 +37,13 @@ __all__ = [
     "TestResponse",
     "TestListResponse",
     "ExecutionCreate",
+    "ExecutionSummaryResponse",
+    "ExecutionDetailResponse",
     "ExecutionResponse",
     "ExecutionListResponse",
+    "ExecutionStatsResponse",
+    "ScheduleCreate",
+    "ScheduleUpdate",
+    "ScheduleResponse",
+    "ScheduleListResponse",
 ]

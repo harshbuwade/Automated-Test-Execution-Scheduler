@@ -3,12 +3,16 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.routers.auth import get_current_user
+from typing import Optional
+from app.models.enums import ExecutionStatus, TriggerType
+from app.schemas.execution import ExecutionListResponse
 from app.schemas.test import (
     TestCreate,
     TestListResponse,
     TestResponse,
     TestUpdate,
 )
+
 from app.services.test_service import (
     create_test,
     delete_user_test,
@@ -112,3 +116,44 @@ def delete_test(
     """Delete test endpoint."""
     delete_user_test(db=db, user_id=current_user.id, test_id=test_id)
     return {"detail": "Test deleted successfully."}
+
+
+@router.get(
+    "/{test_id}/executions",
+    response_model=ExecutionListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get execution history for a specific test",
+    description="Returns a paginated execution history for a specific test script owned by the user.",
+)
+def get_test_executions_history(
+    test_id: int,
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(10, ge=1, le=100, description="Items per page"),
+    status: Optional[ExecutionStatus] = Query(None, description="Filter executions by status"),
+    trigger_type: Optional[TriggerType] = Query(None, description="Filter executions by trigger type"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> ExecutionListResponse:
+    """Test-specific execution history endpoint."""
+    from typing import Optional
+    from app.models.enums import ExecutionStatus, TriggerType
+    from app.schemas.execution import ExecutionListResponse
+    from app.services.execution_service import get_test_executions
+
+    items, total, total_pages = get_test_executions(
+        db=db,
+        user_id=current_user.id,
+        test_id=test_id,
+        page=page,
+        page_size=page_size,
+        status_filter=status,
+        trigger_type_filter=trigger_type,
+    )
+    return ExecutionListResponse(
+        items=items,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages,
+    )
+
