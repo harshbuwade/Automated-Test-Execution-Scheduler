@@ -1,0 +1,36 @@
+services:
+  # FastAPI Backend Web Service
+  - type: web
+    name: test-execution-scheduler-backend
+    env: python
+    region: oregon
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: test-execution-scheduler-db
+          property: connectionString
+
+  # React Frontend Static Site
+  - type: web
+    name: test-execution-scheduler-frontend
+    env: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: "./frontend/dist"
+    routes:
+      - type: rewrite
+        source: "/*"
+        destination: "/index.html"
+
+databases:
+  # PostgreSQL Database Instance
+  - name: test-execution-scheduler-db
+    databaseName: test_scheduler_db
+    user: scheduler_user
+    region: oregon
+    plan: free
