@@ -5,6 +5,12 @@ from app.schemas.auth import (
     UserRegisterRequest,
     UserResponse,
 )
+from app.schemas.test import (
+    TestCreate,
+    TestListResponse,
+    TestResponse,
+    TestUpdate,
+)
 
 __all__ = [
     "UserRegisterRequest",
@@ -12,4 +18,8 @@ __all__ = [
     "UserResponse",
     "TokenResponse",
     "TokenPayload",
+    "TestCreate",
+    "TestUpdate",
+    "TestResponse",
+    "TestListResponse",
 ]

@@ -115,26 +115,30 @@ automated-test-execution-scheduler/
 
 ## 🚀 Development Status
 
-- **Current Phase**: `Phase 3: Authentication & Authorization`
+- **Current Phase**: `Phase 4: Test Management API`
 - **Completed**:
   - [x] Phase 1: Backend Foundation & FastAPI setup
   - [x] Phase 2: SQLAlchemy ORM models & database initialization
   - [x] Phase 3: JWT Authentication & Authorization
-    - `POST /api/auth/register` (User registration with email uniqueness & password strength validation)
-    - `POST /api/auth/login` (Authentication & JWT Bearer token generation)
-    - `GET /api/auth/me` (Protected profile endpoint)
-    - Password hashing using `bcrypt` (no plaintext passwords)
-    - Reusable `get_current_user` FastAPI dependency for future protected routers
-    - Automated test suite covering models & authentication (`tests/test_auth.py` & `tests/test_models.py`)
-- **Next Steps (Phase 4)**:
-  1. Test Script CRUD management API endpoints & services.
-  2. Test execution engine (Python `subprocess` integration).
+  - [x] Phase 4: Test Script CRUD Management & Security
+    - `POST /api/tests` (Create test script definition)
+    - `GET /api/tests` (List authenticated user's tests with pagination)
+    - `GET /api/tests/{id}` (Get single test by ID with ownership authorization)
+    - `PUT /api/tests/{id}` (Update test definition with validation)
+    - `DELETE /api/tests/{id}` (Delete test script definition with cascade)
+    - Script path security validation (reject absolute paths, path traversal `../`, command injection characters)
+    - Sample test script initialized at [`test_scripts/sample_test.py`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/test_scripts/sample_test.py)
+    - Automated test suite covering models, auth, and test management (26 backend tests passing)
+- **Next Steps (Phase 5)**:
+  1. Test Execution Engine (Python `subprocess` execution of pytest scripts).
+  2. Execution logging and output capturing.
 
 ---
 
 ## 📝 License
 
 This project is licensed under the MIT License.
+
 
 
 
