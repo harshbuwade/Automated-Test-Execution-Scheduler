@@ -115,29 +115,32 @@ automated-test-execution-scheduler/
 
 ## 🚀 Development Status
 
-- **Current Phase**: `Phase 4: Test Management API`
+- **Current Phase**: `Phase 5: Automated Test Execution Engine`
 - **Completed**:
   - [x] Phase 1: Backend Foundation & FastAPI setup
   - [x] Phase 2: SQLAlchemy ORM models & database initialization
   - [x] Phase 3: JWT Authentication & Authorization
   - [x] Phase 4: Test Script CRUD Management & Security
-    - `POST /api/tests` (Create test script definition)
-    - `GET /api/tests` (List authenticated user's tests with pagination)
-    - `GET /api/tests/{id}` (Get single test by ID with ownership authorization)
-    - `PUT /api/tests/{id}` (Update test definition with validation)
-    - `DELETE /api/tests/{id}` (Delete test script definition with cascade)
-    - Script path security validation (reject absolute paths, path traversal `../`, command injection characters)
-    - Sample test script initialized at [`test_scripts/sample_test.py`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/test_scripts/sample_test.py)
-    - Automated test suite covering models, auth, and test management (26 backend tests passing)
-- **Next Steps (Phase 5)**:
-  1. Test Execution Engine (Python `subprocess` execution of pytest scripts).
-  2. Execution logging and output capturing.
+  - [x] Phase 5: Automated Test Execution Engine
+    - `POST /api/executions` (Manually trigger execution of user's pytest test script)
+    - `GET /api/executions` (List execution history with pagination & filtering by `test_id` and `status`)
+    - `GET /api/executions/{id}` (Get execution record detail with ownership authorization)
+    - Safe Python subprocess execution (`shell=False`, `sys.executable -m pytest <path>`)
+    - Subprocess timeout enforcement with clean process tree termination
+    - Capturing stdout, stderr, exit code, started_at, finished_at, and duration
+    - Log output truncation limit (max 50,000 characters per stream to preserve DB performance)
+    - Sample pytest scripts ([`sample_pass.py`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/test_scripts/sample_pass.py), [`sample_fail.py`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/test_scripts/sample_fail.py), [`sample_timeout.py`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/test_scripts/sample_timeout.py))
+    - Comprehensive backend automated test suite (35 tests passing)
+- **Next Steps (Phase 6)**:
+  1. APScheduler integration for automated recurring & interval-based test execution.
+  2. Schedule CRUD management API endpoints (`/api/schedules`).
 
 ---
 
 ## 📝 License
 
 This project is licensed under the MIT License.
+
 
 
 

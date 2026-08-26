@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.config import settings
-from app.routers import auth, health, tests
+from app.routers import auth, executions, health, tests
 
 # Setup logging
 logging.basicConfig(
@@ -35,6 +35,8 @@ app.add_middleware(
 app.include_router(health.router, prefix=settings.API_PREFIX)
 app.include_router(auth.router, prefix=settings.API_PREFIX)
 app.include_router(tests.router, prefix=settings.API_PREFIX)
+app.include_router(executions.router, prefix=settings.API_PREFIX)
+
 
 
 

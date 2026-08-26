@@ -5,6 +5,11 @@ from app.schemas.auth import (
     UserRegisterRequest,
     UserResponse,
 )
+from app.schemas.execution import (
+    ExecutionCreate,
+    ExecutionListResponse,
+    ExecutionResponse,
+)
 from app.schemas.test import (
     TestCreate,
     TestListResponse,
@@ -22,4 +27,7 @@ __all__ = [
     "TestUpdate",
     "TestResponse",
     "TestListResponse",
+    "ExecutionCreate",
+    "ExecutionResponse",
+    "ExecutionListResponse",
 ]
