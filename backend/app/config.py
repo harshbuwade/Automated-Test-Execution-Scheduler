@@ -22,6 +22,12 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
+    # JWT Security Configuration
+    JWT_SECRET_KEY: str = "dev-super-secret-key-change-in-production-1234567890"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # Default 24 hours
+
+
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
     def parse_allowed_origins(cls, v: Union[str, List[str]]) -> List[str]:

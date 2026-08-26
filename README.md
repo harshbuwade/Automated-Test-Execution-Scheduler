@@ -115,23 +115,26 @@ automated-test-execution-scheduler/
 
 ## 🚀 Development Status
 
-- **Current Phase**: `Phase 2: Database & SQLAlchemy Models`
+- **Current Phase**: `Phase 3: Authentication & Authorization`
 - **Completed**:
   - [x] Phase 1: Backend Foundation & FastAPI setup
-  - [x] Phase 2: SQLAlchemy ORM models (`User`, `Test`, `Schedule`, `Execution`)
-  - [x] Enums (`TestStatus`, `ScheduleType`, `ExecutionStatus`, `TriggerType`)
-  - [x] Foreign key relationships & cascade rules (`CASCADE` / `SET NULL`)
-  - [x] Unique constraints, indexes & timezone-aware UTC default timestamps
-  - [x] Explicit database initialization script (`scripts/init_db.py`)
-  - [x] Comprehensive pytest test suite for database models (`tests/test_models.py`)
-- **Next Steps (Phase 3)**:
-  1. Pydantic schemas (DTOs) for User, Test, Schedule, and Execution CRUD operations.
-  2. CRUD services layer & API endpoints.
+  - [x] Phase 2: SQLAlchemy ORM models & database initialization
+  - [x] Phase 3: JWT Authentication & Authorization
+    - `POST /api/auth/register` (User registration with email uniqueness & password strength validation)
+    - `POST /api/auth/login` (Authentication & JWT Bearer token generation)
+    - `GET /api/auth/me` (Protected profile endpoint)
+    - Password hashing using `bcrypt` (no plaintext passwords)
+    - Reusable `get_current_user` FastAPI dependency for future protected routers
+    - Automated test suite covering models & authentication (`tests/test_auth.py` & `tests/test_models.py`)
+- **Next Steps (Phase 4)**:
+  1. Test Script CRUD management API endpoints & services.
+  2. Test execution engine (Python `subprocess` integration).
 
 ---
 
 ## 📝 License
 
 This project is licensed under the MIT License.
+
 
 
