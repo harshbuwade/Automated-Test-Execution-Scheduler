@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.config import settings
-from app.database import SessionLocal
+from app.database import SessionLocal, init_db
 from app.routers import auth, executions, health, schedules, tests
 from app.scheduler import scheduler_manager
 from app.services.execution_service import trigger_scheduled_execution
@@ -20,6 +20,8 @@ logger = logging.getLogger("test_scheduler")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """FastAPI lifespan context manager handling startup & shutdown lifecycle."""
+    logger.info("Initializing database tables if not present...")
+    init_db()
     logger.info("Initializing APScheduler background service on startup...")
     scheduler_manager.start()
     scheduler_manager.load_active_schedules_on_startup(
@@ -27,6 +29,7 @@ async def lifespan(app: FastAPI):
         job_func=trigger_scheduled_execution,
     )
     yield
+
     logger.info("Stopping APScheduler background service on shutdown...")
     scheduler_manager.shutdown(wait=False)
 
