@@ -5,7 +5,8 @@
 [![React](https://img.shields.io/badge/React-19.0-61DAFB.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF.svg)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC.svg)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Vercel](https://img.shields.io/badge/Vercel-Frontend-black.svg)](https://vercel.com/)
+[![Render](https://img.shields.io/badge/Render-Backend-blueviolet.svg)](https://render.com/)
 
 A professional full-stack web application designed for QA engineers and developers to create and manage automated test scripts, schedule recurring background execution jobs (interval & cron syntax), trigger manual test runs, monitor live execution telemetry, and inspect detailed execution logs and status reports.
 
@@ -13,7 +14,8 @@ A professional full-stack web application designed for QA engineers and develope
 
 ## 🚀 Features
 
-- **JWT Authentication & Authorization**: Secure user registration, login, session persistence, password hashing via `bcrypt`, and user ownership data isolation.
+- **Direct Dashboard Access**: Instant redirection to the main telemetry dashboard without manual authentication barriers. Includes background silent auto-authentication.
+- **JWT Authentication & Ownership Isolation**: Secure user session persistence, password hashing via `bcrypt`, and user ownership data isolation across all endpoints.
 - **Test Script Management**: Authenticated CRUD management of test suite definitions (`pytest` framework support, configurable timeouts, script paths).
 - **Automated Pytest Execution Engine**: Safe subprocess test execution (`shell=False`), process isolation, 50KB stdout/stderr log capture, exit code mapping, and timeout enforcement.
 - **Background Scheduling Engine**: Multi-mode automated scheduler powered by **APScheduler** supporting both interval (seconds) and standard 5-field cron syntax (`*/5 * * * *`). Includes pause and resume controls.
@@ -29,12 +31,14 @@ A professional full-stack web application designed for QA engineers and develope
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    React Frontend UI                        │
+│                (Deployed on Vercel)                         │
 │         (React 19 + TypeScript + Vite + Tailwind CSS)       │
 └──────────────────────────────┬──────────────────────────────┘
                                │ HTTP REST (Bearer JWT)
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                    FastAPI Backend API                      │
+│                (Deployed on Render)                         │
 │       (Routers: Auth, Tests, Schedules, Executions)          │
 └──────────────┬──────────────────────────────┬───────────────┘
                │                              │
@@ -51,34 +55,12 @@ A professional full-stack web application designed for QA engineers and develope
 └──────────────────────────────┘└─────────────────────────────┘
 ```
 
-### Execution & Scheduling Workflow
-```
-[APScheduler Trigger / Manual UI Request]
-                   │
-                   ▼
-     [ Execution Service Layer ]
-                   │
-                   ▼
-     [ Pytest Subprocess Runner ]
-        ├── Path Security Check (Prevent Directory Traversal)
-        ├── Spawn Process (shell=False)
-        ├── Enforce Timeout Limit
-        └── Capture & Truncate stdout / stderr Streams
-                   │
-                   ▼
-     [ DB Persistence (Executions Table) ]
-```
-
 ---
 
-## 🛠️ Backend Setup
+## 🛠️ Local Setup
 
-### Prerequisites
-- Python 3.10+ (Tested on Python 3.14)
-- Virtual Environment tool (`venv`)
-
-### Installation & Execution
-1. Navigate to the `backend` directory:
+### Backend Setup
+1. Navigate to `backend/`:
    ```bash
    cd backend
    ```
@@ -97,32 +79,15 @@ A professional full-stack web application designed for QA engineers and develope
    ```bash
    pip install -r requirements.txt
    ```
-4. Configure environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-5. Initialize the database schema:
-   ```bash
-   python ..\scripts\init_db.py
-   ```
-6. Start the FastAPI development server:
+4. Start FastAPI server:
    ```bash
    uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
    ```
-7. Access API documentation:
-   - **Swagger OpenAPI Docs**: `http://127.0.0.1:8000/docs`
-   - **ReDoc Docs**: `http://127.0.0.1:8000/redoc`
+   - **Swagger Docs**: `http://127.0.0.1:8000/docs`
    - **Health Endpoint**: `http://127.0.0.1:8000/api/health`
 
----
-
-## 💻 Frontend Setup
-
-### Prerequisites
-- Node.js 18+ and `npm`
-
-### Installation & Execution
-1. Navigate to the `frontend` directory:
+### Frontend Setup
+1. Navigate to `frontend/`:
    ```bash
    cd frontend
    ```
@@ -130,80 +95,47 @@ A professional full-stack web application designed for QA engineers and develope
    ```bash
    npm install
    ```
-3. Configure environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-4. Start the Vite development server:
+3. Start Vite dev server:
    ```bash
    npm run dev
    ```
    Open `http://localhost:5173/` in your browser.
-5. Compile production build:
-   ```bash
-   npm run build
-   ```
 
 ---
 
-## ⚙️ Environment Variables
+## ☁️ Deployment Guide (Vercel Frontend + Render Backend)
 
-### Backend (`backend/.env`)
-| Variable | Default Value | Description |
-|---|---|---|
-| `ENVIRONMENT` | `development` | Runtime environment (`development`, `production`). |
-| `DEBUG` | `True` | Enable debug logs & detailed error payloads. |
-| `API_PREFIX` | `/api` | Base API router prefix. |
-| `DATABASE_URL` | `sqlite:///./test_scheduler.db` | SQLAlchemy database URL (SQLite or PostgreSQL). |
-| `ALLOWED_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated CORS allowed origin URLs. |
-| `JWT_SECRET_KEY` | `change-this-secret-key-...` | Secret key for signing JWT access tokens. |
-| `JWT_ALGORITHM` | `HS256` | JWT signing algorithm. |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | `1440` | Token expiration time in minutes (24 hours). |
-| `TEST_SCRIPTS_DIR` | `test_scripts` | Base directory containing target test scripts. |
+### 1. Backend Deployment on Render
+1. Connect your repository to [Render](https://render.com/).
+2. Deploy using [`render.yaml`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/render.yaml) or create a Python Web Service:
+   - **Build Command**: `pip install -r backend/requirements.txt`
+   - **Start Command**: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+3. Environment Variables on Render:
+   - `DATABASE_URL`: Your PostgreSQL connection string.
+   - `JWT_SECRET_KEY`: Random 32-byte secret.
+   - `ALLOWED_ORIGINS`: `https://*.vercel.app` (or your specific Vercel frontend URL).
 
-### Frontend (`frontend/.env`)
-| Variable | Default Value | Description |
-|---|---|---|
-| `VITE_API_BASE_URL` | `http://127.0.0.1:8000/api` | Base URL of the backend FastAPI service. |
+### 2. Frontend Deployment on Vercel
+1. Import the repository into [Vercel](https://vercel.com/).
+2. Set the **Root Directory** to `frontend`.
+3. Build Settings:
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+4. Environment Variables on Vercel:
+   - `VITE_API_BASE_URL`: `https://<your-render-backend-name>.onrender.com/api`
+5. Vercel automatically utilizes [`frontend/vercel.json`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/frontend/vercel.json) for clean SPA routing.
 
 ---
 
 ## 🧪 Testing
 
-Run the complete backend automated test suite (54 unit, integration, and security tests):
+Run the complete backend test suite (54 tests):
 ```bash
 cd backend
 pytest ../tests/test_models.py ../tests/test_auth.py ../tests/test_test_management.py ../tests/test_execution_engine.py ../tests/test_scheduling_engine.py ../tests/test_execution_reporting.py
 ```
 *Expected Result*: **`54 passed`**.
-
----
-
-## ☁️ Deployment Guide
-
-The application is prepared for simple deployment using **Render** (or any Cloud Provider supporting Docker/Web Services and Static Sites).
-
-### Simple Render Deployment
-1. Connect your GitHub repository to [Render](https://render.com/).
-2. Select **Blueprints** and point Render to [`render.yaml`](file:///c:/Users/Harsh/Desktop/Automated-Test-Execution-Scheduler/render.yaml).
-3. Render automatically provisions:
-   - **PostgreSQL Database**: `test-scheduler-db`
-   - **FastAPI Web Service**: `test-scheduler-backend` (runs `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`)
-   - **Static Frontend Site**: `test-scheduler-frontend` (runs `cd frontend && npm install && npm run build` publishing `frontend/dist`)
-4. Set environment variables on the backend service:
-   - `JWT_SECRET_KEY`: High-entropy random 32-byte secret string.
-   - `ALLOWED_ORIGINS`: Production static site URL (e.g. `https://test-execution-scheduler.onrender.com`).
-
----
-
-## 🔒 Security Summary
-
-- **Password Hashing**: Passwords are hashed using `bcrypt` and never returned in API DTOs or logs.
-- **JWT Authorization**: All private endpoints require `Authorization: Bearer <token>`.
-- **User Ownership Isolation**: Data access is strictly isolated by user ID (`Execution -> Test -> User`).
-- **Path Traversal Protection**: Script paths are sanitized and resolved strictly within `TEST_SCRIPTS_DIR`.
-- **Subprocess Security**: Subprocess execution uses `shell=False` strictly without command string interpolation.
-- **Environment Secrets**: Sensitive `.env` files and runtime SQLite databases are excluded via `.gitignore`.
 
 ---
 
@@ -214,4 +146,4 @@ The application is prepared for simple deployment using **Render** (or any Cloud
 PROJECT STATUS: COMPLETE
 ==================================================
 ```
-All 10 project phases have been fully implemented, integrated, tested, and verified.
+All phases and deployment configurations for Render (Backend + PostgreSQL) and Vercel (Frontend) are complete and verified.

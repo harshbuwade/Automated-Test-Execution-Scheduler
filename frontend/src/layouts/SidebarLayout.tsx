@@ -5,7 +5,6 @@ import {
   ChevronRight,
   FileCode,
   LayoutDashboard,
-  LogOut,
   Menu,
   PlaySquare,
   User as UserIcon,
@@ -14,7 +13,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 
 export const SidebarLayout: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -107,25 +106,17 @@ export const SidebarLayout: React.FC = () => {
           </nav>
         </div>
 
-        {/* User Card & Logout */}
+        {/* User Card */}
         <div className="p-4 border-t border-slate-800/60">
-          <div className="bg-slate-950/60 rounded-xl p-3.5 border border-slate-800/80 mb-3 flex items-center space-x-3">
+          <div className="bg-slate-950/60 rounded-xl p-3.5 border border-slate-800/80 flex items-center space-x-3">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
               {user?.name ? user.name.charAt(0).toUpperCase() : <UserIcon className="w-4 h-4" />}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-200 truncate">{user?.name || 'Developer'}</p>
-              <p className="text-xs text-slate-400 truncate">{user?.email || ''}</p>
+              <p className="text-sm font-semibold text-slate-200 truncate">{user?.name || 'Default User'}</p>
+              <p className="text-xs text-slate-400 truncate">{user?.email || 'demo@scheduler.local'}</p>
             </div>
           </div>
-
-          <button
-            onClick={logout}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-medium text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 transition-all duration-200"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
-          </button>
         </div>
       </aside>
 

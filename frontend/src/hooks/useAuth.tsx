@@ -12,12 +12,47 @@ interface AuthContextType {
   logout: () => void;
 }
 
+const DEFAULT_DEMO_USER = {
+  name: 'Default User',
+  email: 'demo@scheduler.local',
+  password: 'DemoPassword123!',
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const performAutoAuth = async () => {
+    try {
+      // 1. Try logging in with default demo user
+      const loginRes = await authService.login({
+        email: DEFAULT_DEMO_USER.email,
+        password: DEFAULT_DEMO_USER.password,
+      });
+      localStorage.setItem('token', loginRes.access_token);
+      setToken(loginRes.access_token);
+      const currentUser = await authService.me();
+      setUser(currentUser);
+    } catch {
+      // 2. If login fails, register the default demo user first then log in
+      try {
+        await authService.register(DEFAULT_DEMO_USER);
+        const loginRes = await authService.login({
+          email: DEFAULT_DEMO_USER.email,
+          password: DEFAULT_DEMO_USER.password,
+        });
+        localStorage.setItem('token', loginRes.access_token);
+        setToken(loginRes.access_token);
+        const currentUser = await authService.me();
+        setUser(currentUser);
+      } catch (err) {
+        console.error('Silent auto-authentication failed:', err);
+      }
+    }
+  };
 
   useEffect(() => {
     const initAuth = async () => {
@@ -27,12 +62,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const currentUser = await authService.me();
           setUser(currentUser);
           setToken(storedToken);
+          setIsLoading(false);
+          return;
         } catch {
           localStorage.removeItem('token');
           setToken(null);
           setUser(null);
         }
       }
+
+      // Automatically authenticate if no valid token exists
+      await performAutoAuth();
       setIsLoading(false);
     };
 
@@ -56,7 +96,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       await authService.register(data);
-      // Auto login after registration
       await login({ email: data.email, password: data.password });
     } finally {
       setIsLoading(false);
@@ -67,6 +106,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    // Perform auto-auth to seamlessly switch back to default session
+    performAutoAuth();
   };
 
   return (

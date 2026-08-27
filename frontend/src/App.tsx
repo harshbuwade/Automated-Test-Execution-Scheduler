@@ -6,8 +6,6 @@ import { SidebarLayout } from './layouts/SidebarLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { ExecutionDetailsPage } from './pages/ExecutionDetailsPage';
 import { ExecutionsPage } from './pages/ExecutionsPage';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
 import { SchedulesPage } from './pages/SchedulesPage';
 import { TestsPage } from './pages/TestsPage';
 
@@ -16,11 +14,7 @@ export const App: React.FC = () => {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Public Authentication Routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-
-          {/* Protected Dashboard Routes */}
+          {/* Main Application Layout & Dashboard Routes */}
           <Route
             path="/"
             element={
