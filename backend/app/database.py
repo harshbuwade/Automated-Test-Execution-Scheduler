@@ -33,7 +33,15 @@ def get_db() -> Generator:
 
 
 def init_db() -> None:
-    """Explicitly creates database tables from metadata if they do not exist."""
+    """Explicitly creates database tables from metadata if they do not exist and seeds demo data."""
     import app.models  # noqa: F401 - Register models with Base metadata
     Base.metadata.create_all(bind=engine)
+
+    from app.seed import seed_demo_data
+    db = SessionLocal()
+    try:
+        seed_demo_data(db)
+    finally:
+        db.close()
+
 
