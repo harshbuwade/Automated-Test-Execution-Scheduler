@@ -100,7 +100,20 @@ export const TestsPage: React.FC = () => {
       setIsModalOpen(false);
       fetchTests();
     } catch (err: any) {
-      setFormError(err.response?.data?.detail || 'Failed to save test script definition.');
+      if (err.response?.data?.detail) {
+        const detail = err.response.data.detail;
+        if (typeof detail === 'string') {
+          setFormError(detail);
+        } else if (Array.isArray(detail)) {
+          setFormError(detail.map((d: any) => d.msg || JSON.stringify(d)).join(', '));
+        } else {
+          setFormError(JSON.stringify(detail));
+        }
+      } else if (err.code === 'ERR_NETWORK' || !err.response) {
+        setFormError('Cannot connect to backend server. Make sure the API server is running.');
+      } else {
+        setFormError('Failed to save test script definition.');
+      }
     } finally {
       setSubmitting(false);
     }
