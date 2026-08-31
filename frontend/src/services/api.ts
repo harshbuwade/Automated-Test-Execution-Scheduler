@@ -7,13 +7,13 @@ const getApiBaseUrl = (): string => {
     return trimmed.endsWith('/api') ? trimmed : `${trimmed.replace(/\/$/, '')}/api`;
   }
 
-  // Fallback for deployed production environments when environment variable was not baked in at Vite build time
+  // Fallback for deployed production environments when VITE_API_BASE_URL was omitted at Vite build time
   if (
     typeof window !== 'undefined' &&
     window.location.hostname !== 'localhost' &&
     window.location.hostname !== '127.0.0.1'
   ) {
-    return 'https://test-execution-scheduler-backend.onrender.com/api';
+    return 'https://automated-test-execution-scheduler.onrender.com/api';
   }
 
   return 'http://127.0.0.1:8000/api';
